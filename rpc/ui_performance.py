@@ -13,11 +13,17 @@ class RPC:
         '''
             Used for validating section "SCHEDULING"
         '''
-        scheduling_data = parse_obj_as(List[UiPerformanceScheduleModel], data)
-        return {'scheduling': [i.dict() for i in scheduling_data]}
+        scheduling_data = []
+        for each in data:
+            each["run"] = False
+            pd_obj = UiPerformanceScheduleModel(**each)
+            scheduling_data.append(pd_obj)
+        #scheduling_data = parse_obj_as(List[UiPerformanceScheduleModel], data)
+        return {'scheduling': [{**i.dict(), 'run': False} for i in scheduling_data]}
 
     @web.rpc('scheduling_ui_performance_create_schedule')
     def create_schedule(self, data: dict) -> int:
+        data["run"] = False
         pd_obj = UiPerformanceScheduleModel(**data)
         schedule_id = pd_obj.save()
         return schedule_id

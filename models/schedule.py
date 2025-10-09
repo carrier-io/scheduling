@@ -24,7 +24,7 @@ class Schedule(db_tools.AbstractBaseMixin, rpc_tools.RpcMixin, db.Base):
     @property
     def time_to_run(self) -> bool:
         if not self.last_run:
-            return True
+            self.last_run = datetime.now()
         return croniter(self.cron, self.last_run, datetime).get_next() <= datetime.now()
 
     def run(self):

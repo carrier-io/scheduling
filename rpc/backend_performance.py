@@ -4,7 +4,7 @@ from pydantic import parse_obj_as
 from ..models.schedule import Schedule
 from ..models.performance_pd import PerformanceScheduleModel
 
-from pylon.core.tools import web
+from pylon.core.tools import web, log
 
 
 class RPC:
@@ -13,11 +13,17 @@ class RPC:
         '''
             Used for validating section "SCHEDULING"
         '''
-        scheduling_data = parse_obj_as(List[PerformanceScheduleModel], data)
+
+        scheduling_data = []
+        for each in data:
+            each["run"] = False
+            pd_obj = PerformanceScheduleModel(**each)
+            scheduling_data.append(pd_obj)
         return {'scheduling': [i.dict() for i in scheduling_data]}
 
     @web.rpc('scheduling_backend_performance_create_schedule')
     def create_schedule(self, data: dict) -> int:
+        data["run"] = False
         pd_obj = PerformanceScheduleModel(**data)
         schedule_id = pd_obj.save()
         return schedule_id
